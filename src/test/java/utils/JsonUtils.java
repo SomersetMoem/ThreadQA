@@ -1,27 +1,25 @@
 package utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 
 import java.io.File;
-import java.io.IOException;
 
 public class JsonUtils {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static <T> T fromJson(String jsonPath, Class<T> clazz) {
-        try {
-            return mapper.readValue(new File(jsonPath), clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @SneakyThrows
+    public static <T> T fromJsonFile(String jsonPath, Class<T> clazz) {
+        return mapper.readValue(new File(jsonPath), clazz);
     }
 
+    @SneakyThrows
+    public static <T> T fromJsonString(String json, Class<T> clazz) {
+        return mapper.readValue(json, clazz);
+    }
+
+    @SneakyThrows
     public static String toJson(Object object) {
-        try {
-            return mapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return mapper.writeValueAsString(object);
     }
 }
