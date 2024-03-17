@@ -1,9 +1,14 @@
 package tests;
 
+import listener.RetryListener;
 import org.aeonbits.owner.ConfigFactory;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import utils.AppConfig;
 
+@Tag("UNIT")
+@ExtendWith(RetryListener.class)
 public class PropertyReaderTest {
 
     @Test
