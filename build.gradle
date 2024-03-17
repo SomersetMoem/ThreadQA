@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id("io.freefair.lombok") version "8.6"
+    id "io.qameta.allure" version "2.11.2"
 }
 
 group 'org.example'
@@ -33,10 +34,16 @@ test {
 }
 
 tasks.register("myTags", Test.class) {
-    String [] tags = System.getProperty("customTags").split(",")
-    useJUnitPlatform {
-        for (String tag : tags) {
-            includeTags.add(tag)
+    String fullTags = System.getProperty("customTags")
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    if(fullTags != null) {
+        String [] tags = System.getProperty("customTags").split(",")
+        useJUnitPlatform {
+            for (String tag : tags) {
+                includeTags.add(tag)
+            }
         }
     }
 }
