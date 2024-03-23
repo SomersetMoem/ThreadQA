@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-public class RetryListener implements TestExecutionExceptionHandler, AfterTestExecutionCallback {
+public class RetryListenerJunit implements TestExecutionExceptionHandler, AfterTestExecutionCallback {
     private final static int MAX_TRY = 3;
     private final static Set<String> failedTestNames = new HashSet<>();
 

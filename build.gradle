@@ -24,6 +24,16 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
     testImplementation 'org.aeonbits.owner:owner:1.0.4'
     testImplementation 'org.apache.commons:commons-io:1.3.2'
+
+    testImplementation 'org.testng:testng:6.14.3'
+
+}
+
+tasks.register("testNGRun", Test.class) {
+   useTestNG()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 test {
