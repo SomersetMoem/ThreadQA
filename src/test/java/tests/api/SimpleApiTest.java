@@ -1,10 +1,19 @@
 package tests.api;
 
+import io.restassured.response.Response;
+import model.fakeApiUser.Address;
+import model.fakeApiUser.Geolocation;
+import model.fakeApiUser.Name;
+import model.fakeApiUser.UserRoot;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.*;
 
 public class SimpleApiTest {
 
@@ -60,6 +69,74 @@ public class SimpleApiTest {
                 .statusCode(200)
                 .body("id", equalTo(userId))
                 .body("address.zipcode", matchesPattern("\\d{5}-\\d{4}"));
+    }
+
+    @Test
+    public void getAllUsersWithLimit() {
+        int limitSize = 5;
+
+        given().queryParam("limit", limitSize)
+                .get("https://fakestoreapi.com/users")
+                .then().log().all()
+                .statusCode(200)
+                .body("", hasSize(limitSize));
+    }
+
+    @Test
+    public void getAllUsersSortByDesc() {
+        String sortedType = "desc";
+
+        Response sortedResponse = given().queryParam("sort", sortedType)
+                .get("https://fakestoreapi.com/users")
+                .then()
+                .log().all()
+                .extract()
+                .response();
+
+        Response notSortedResponse = given().get("https://fakestoreapi.com/users")
+                .then()
+                .log().all()
+                .extract()
+                .response();
+
+        List<Integer> sortedResponseIds = sortedResponse.jsonPath().getList("id");
+        List<Integer> notSortedResponseIds = notSortedResponse.jsonPath().getList("id");
+
+        List<Integer> sortedByCode = notSortedResponseIds.stream()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+
+        Assertions.assertNotEquals(sortedResponseIds, notSortedResponseIds);
+        Assertions.assertEquals(sortedByCode, sortedResponseIds);
+    }
+
+    @Test
+    public void addUserTest() {
+        Name name = new Name("Thomas", "Anderson");
+        Geolocation geolocation = new Geolocation("-37.3159", "81.1496");
+
+        Address address = Address.builder()
+                .city("Москва")
+                .number(100)
+                .zipcode("1245-1234")
+                .street("Noviy arbat 12")
+                .geolocation(geolocation)
+                .build();
+
+        UserRoot bodyRequest = UserRoot.builder()
+                .name(name)
+                .phone("79000000000")
+                .email("fake@mail.com")
+                .username("thomasAdmin")
+                .password("1q2w3e4r5")
+                .address(address)
+                .build();
+
+        given().body(bodyRequest)
+                .post("https://fakestoreapi.com/users")
+                .then().log().all()
+                .statusCode(200)
+                .body("id", notNullValue());
     }
 }
 
