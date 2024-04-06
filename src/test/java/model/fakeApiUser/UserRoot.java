@@ -22,13 +22,13 @@ public class UserRoot{
 	private String phone;
 
 	@JsonProperty("__v")
-	private int v;
+	private Integer v;
 
 	@JsonProperty("name")
 	private Name name;
 
 	@JsonProperty("id")
-	private int id;
+	private Integer id;
 
 	@JsonProperty("email")
 	private String email;

@@ -1,5 +1,6 @@
 package tests.api;
 
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import model.fakeApiUser.Address;
 import model.fakeApiUser.Geolocation;
@@ -9,7 +10,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
@@ -137,6 +140,67 @@ public class SimpleApiTest {
                 .then().log().all()
                 .statusCode(200)
                 .body("id", notNullValue());
+    }
+
+    private UserRoot getTestUser() {
+        Name name = new Name("Thomas", "Anderson");
+        Geolocation geolocation = new Geolocation("-37.3159", "81.1496");
+
+        Address address = Address.builder()
+                .city("Москва")
+                .number(100)
+                .zipcode("1245-1234")
+                .street("Noviy arbat 12")
+                .geolocation(geolocation)
+                .build();
+
+        return UserRoot.builder()
+                .name(name)
+                .phone("79000000000")
+                .email("fake@mail.com")
+                .username("thomasAdmin")
+                .password("1q2w3e4r5")
+                .address(address)
+                .build();
+    }
+
+    @Test
+    public void updateUserTest() {
+        UserRoot user = getTestUser();
+        String oldPassword = user.getPassword();
+        int userId = user.getId();
+
+        user.setPassword("newpass11");
+        given().body(user)
+                .pathParam("userId", userId)
+                .put("https://fakestoreapi.com/users{userId}")
+                .then().log().all()
+                .statusCode(200)
+                .body("password", not(equalTo(oldPassword)));
+    }
+
+    @Test
+    public void deleteUserTest() {
+        given().delete("https://fakestoreapi.com/users/6")
+                .then()
+                .log().all()
+                .statusCode(200);
+    }
+
+    @Test
+    public void authUserTest() {
+        Map<String, String> userAuth = new HashMap<>();
+        userAuth.put("userName", "jimie_k");
+        userAuth.put("password", "klein*#%*");
+
+        given().contentType(ContentType.JSON)
+                .body(userAuth)
+                .post("https://fakestoreapi.com/auth/login")
+                .then()
+                .statusCode(200)
+                .log().all()
+                .body("token", notNullValue());
+
     }
 }
 
