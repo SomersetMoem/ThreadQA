@@ -1,14 +1,18 @@
 package tests.api;
 
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
+import listener.CustomTpl;
 import model.fakeApiUser.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,7 +25,8 @@ public class SimpleRefactoring {
     @BeforeAll
     public static void setUp() {
         RestAssured.baseURI = "https://fakestoreapi.com";
-        RestAssured.filters(new ResponseLoggingFilter(), new RequestLoggingFilter());
+        RestAssured.filters(new ResponseLoggingFilter(), new RequestLoggingFilter(),
+                CustomTpl.customLogFilter().withCustomTemplate());
     }
 
     @Test
@@ -45,10 +50,9 @@ public class SimpleRefactoring {
         Assertions.assertTrue(response.getAddress().getZipcode().matches("\\d{5}-\\d{4}"));
     }
 
-    @Test
-    public void getAllUsersWithLimit() {
-        int limitSize = 5;
-
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 10, 20})
+    public void getAllUsersWithLimit(int limitSize) {
         List<UserRoot> users = given().queryParam("limit", limitSize)
                 .get("/users")
                 .then()
@@ -57,6 +61,19 @@ public class SimpleRefactoring {
                 });
 
         Assertions.assertEquals(limitSize, users.size());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 40,})
+    public void getAllUsersWithLimitErrorParams(int limitSize) {
+        List<UserRoot> users = given().queryParam("limit", limitSize)
+                .get("/users")
+                .then()
+                .statusCode(200)
+                .extract().as(new TypeRef<List<UserRoot>>() {
+                });
+
+        Assertions.assertNotEquals(limitSize, users.size());
     }
 
     @Test
@@ -144,4 +161,6 @@ public class SimpleRefactoring {
 
         Assertions.assertNotNull(token);
     }
+
+
 }

@@ -25,13 +25,13 @@ dependencies {
     testImplementation 'org.aeonbits.owner:owner:1.0.4'
     testImplementation 'org.apache.commons:commons-io:1.3.2'
     testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '4.4.0'
-
     testImplementation 'org.testng:testng:6.14.3'
+    testImplementation 'io.qameta.allure:allure-rest-assured:2.17.0'
 
 }
 
 tasks.register("testNGRun", Test.class) {
-   useTestNG()
+    useTestNG()
     testLogging {
         events "passed", "skipped", "failed"
     }
@@ -49,8 +49,8 @@ tasks.register("myTags", Test.class) {
     testLogging {
         events "passed", "skipped", "failed"
     }
-    if(fullTags != null) {
-        String [] tags = System.getProperty("customTags").split(",")
+    if (fullTags != null) {
+        String[] tags = System.getProperty("customTags").split(",")
         useJUnitPlatform {
             for (String tag : tags) {
                 includeTags.add(tag)
