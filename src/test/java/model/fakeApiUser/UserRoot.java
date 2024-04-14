@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserRoot{
-
 	@JsonProperty("password")
 	private String password;
 

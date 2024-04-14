@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Name{
-
 	@JsonProperty("firstname")
 	private String firstname;
 

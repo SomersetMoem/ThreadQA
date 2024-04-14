@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Requirements{
-
 	@JsonProperty("videoCard")
 	private String videoCard;
 

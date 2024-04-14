@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class GamesItem{
-
 	@JsonProperty("gameId")
 	private int gameId;
 

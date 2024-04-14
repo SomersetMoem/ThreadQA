@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SimilarDlc{
-
 	@JsonProperty("isFree")
 	private boolean isFree;
 
