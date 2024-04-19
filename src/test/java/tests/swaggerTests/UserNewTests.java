@@ -16,7 +16,7 @@ import java.util.Random;
 import static assertions.Conditions.hasMessage;
 import static assertions.Conditions.hasStatusCode;
 
-public class UserNewTest {
+public class UserNewTests {
 
     private static Random random;
     private static UserService userService;
