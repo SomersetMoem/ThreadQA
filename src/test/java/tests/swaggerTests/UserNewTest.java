@@ -1,6 +1,8 @@
 package tests.swaggerTests;
 
 import assertions.AssertableResponse;
+import assertions.Condition;
+import assertions.Conditions;
 import assertions.GenericAssertableResponse;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
@@ -14,6 +16,7 @@ import model.swagger.JwtAuthData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import services.UserService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +27,10 @@ import static assertions.Conditions.hasMessage;
 import static assertions.Conditions.hasStatusCode;
 import static io.restassured.RestAssured.given;
 
-public class UserTests {
+public class UserNewTest {
+
     private static Random random;
+    private static UserService userService;
 
     @BeforeAll
     public static void setup() {
@@ -33,42 +38,24 @@ public class UserTests {
         RestAssured.filters(new ResponseLoggingFilter(), new RequestLoggingFilter(),
                 CustomTpl.customLogFilter().withCustomTemplate());
         random = new Random();
+        userService = new UserService();
     }
 
     @Test
     public void positiveRegisterTest() {
-        int randomNumber = Math.abs(random.nextInt());
-        FullUser user = FullUser.builder()
-                .login("threadQA" + randomNumber)
-                .pass("asd11")
-                .build();
+        FullUser user = getRandomFullUser();
 
-        Info info = given().contentType(ContentType.JSON)
-                .body(user)
-                .post("/api/signup")
-                .then()
-                .statusCode(201)
-                .extract().jsonPath().getObject("info", Info.class);
-
-        Assertions.assertEquals("User created", info.getMessage());
-        Assertions.assertEquals("success", info.getStatus());
+        userService.register(user)
+                .should(hasStatusCode(201))
+                .should(hasMessage("User created"));
     }
 
     @Test
     public void negativeRegisterLoginExistsTest() {
-        int randomNumber = Math.abs(random.nextInt());
-        FullUser user = FullUser.builder()
-                .login("threadQA" + randomNumber)
-                .pass("asd11")
-                .build();
+        FullUser user = getRandomFullUser();
 
 
-        Info info = given().contentType(ContentType.JSON)
-                .body(user)
-                .post("/api/signup")
-                .then()
-                .statusCode(201)
-                .extract().jsonPath().getObject("info", Info.class);
+        Info info = userService.getUserInfo().as(Info.class);
 
         Assertions.assertEquals("User created", info.getMessage());
 
@@ -109,7 +96,8 @@ public class UserTests {
         new GenericAssertableResponse<Info>(given().contentType(ContentType.JSON)
                 .body(user)
                 .post("/api/signup")
-                .then(), new TypeRef<Info>() {});
+                .then(), new TypeRef<Info>() {
+        });
 
         Assertions.assertEquals("Missing login or password", errorInfo.getMessage());
         Assertions.assertEquals("fail", errorInfo.getStatus());
@@ -358,5 +346,13 @@ public class UserTests {
                 });
 
         Assertions.assertTrue(users.size() >= 3);
+    }
+
+    private FullUser getRandomFullUser() {
+        int randomNumber = Math.abs(random.nextInt());
+        return FullUser.builder()
+                .login("threadQA" + randomNumber)
+                .pass("asd11")
+                .build();
     }
 }
