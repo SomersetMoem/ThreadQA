@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SimilarDlc{
-	@JsonProperty("isFree")
-	private boolean isFree;
+public class SimilarDlc {
+    @JsonProperty("isFree")
+    private Boolean isFree;
 
-	@JsonProperty("dlcNameFromAnotherGame")
-	private String dlcNameFromAnotherGame;
+    @JsonProperty("dlcNameFromAnotherGame")
+    private String dlcNameFromAnotherGame;
 }

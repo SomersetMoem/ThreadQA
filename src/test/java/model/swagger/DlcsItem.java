@@ -18,14 +18,14 @@ public class DlcsItem{
 	private SimilarDlc similarDlc;
 
 	@JsonProperty("price")
-	private int price;
+	private Integer price;
 
 	@JsonProperty("rating")
-	private int rating;
+	private Integer rating;
 
 	@JsonProperty("description")
 	private String description;
 
 	@JsonProperty("isDlcFree")
-	private boolean isDlcFree;
+	private Boolean isDlcFree;
 }

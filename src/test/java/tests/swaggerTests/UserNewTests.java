@@ -3,36 +3,51 @@ package tests.swaggerTests;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import listener.AdminUser;
+import listener.AdminUserResolver;
 import listener.CustomTpl;
 import model.swagger.FullUser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import services.UserService;
 
 import java.util.List;
-import java.util.Random;
 
 import static assertions.Conditions.hasMessage;
 import static assertions.Conditions.hasStatusCode;
+import static utils.RandomTestData.*;
 
+@ExtendWith(AdminUserResolver.class)
 public class UserNewTests {
-
-    private static Random random;
     private static UserService userService;
+    private FullUser user;
+
+    @BeforeEach
+    public void initTestUser() {
+        user = getRandomFullUser();
+    }
 
     @BeforeAll
     public static void setup() {
         RestAssured.baseURI = "http://85.192.34.140:8080/";
         RestAssured.filters(new ResponseLoggingFilter(), new RequestLoggingFilter(),
                 CustomTpl.customLogFilter().withCustomTemplate());
-        random = new Random();
         userService = new UserService();
     }
 
     @Test
     public void positiveRegisterTest() {
-        FullUser user = getRandomFullUser();
+        userService.register(user)
+                .should(hasStatusCode(201))
+                .should(hasMessage("User created"));
+    }
+
+    @Test
+    public void positiveRegisterWithGamesTest() {
+        FullUser user = getRandomUserWithGames();
 
         userService.register(user)
                 .should(hasStatusCode(201))
@@ -41,7 +56,6 @@ public class UserNewTests {
 
     @Test
     public void negativeRegisterLoginExistsTest() {
-        FullUser user = getRandomFullUser();
         userService.register(user);
         userService.register(user)
                 .should(hasStatusCode(400))
@@ -50,7 +64,6 @@ public class UserNewTests {
 
     @Test
     public void negativeRegisterNoPasswordTest() {
-        FullUser user = getRandomFullUser();
         user.setPass(null);
         userService.register(user)
                 .should(hasStatusCode(400))
@@ -58,9 +71,8 @@ public class UserNewTests {
     }
 
     @Test
-    public void positiveAdminAuthTest() {
-        FullUser user = getAdminUser();
-        String token = userService.auth(user)
+    public void positiveAdminAuthTest(@AdminUser FullUser admin) {
+        String token = userService.auth(admin)
                 .should(hasStatusCode(200))
                 .asJwt();
 
@@ -69,7 +81,6 @@ public class UserNewTests {
 
     @Test
     public void positiveNewUserAuthTest() {
-        FullUser user = getRandomFullUser();
         userService.register(user);
         String token = userService.auth(user)
                 .should(hasStatusCode(200))
@@ -80,7 +91,6 @@ public class UserNewTests {
 
     @Test
     public void negativeAuthTest() {
-        FullUser user = getRandomFullUser();
         userService.auth(user).should(hasStatusCode(401));
     }
 
@@ -106,7 +116,6 @@ public class UserNewTests {
 
     @Test
     public void positiveChangeUserPassTest() {
-        FullUser user = getRandomFullUser();
         userService.register(user);
         String token = userService.auth(user).asJwt();
 
@@ -122,7 +131,6 @@ public class UserNewTests {
         FullUser updateUser = userService.getUserInfo(token).as(FullUser.class);
 
         Assertions.assertNotEquals(user.getPass(), updateUser.getPass());
-
     }
 
     @Test
@@ -149,7 +157,6 @@ public class UserNewTests {
 
     @Test
     public void positiveDeleteNewUserTest() {
-        FullUser user = getRandomFullUser();
         userService.register(user);
         String token = userService.auth(user).asJwt();
 
@@ -163,20 +170,5 @@ public class UserNewTests {
         List<String> users = userService.getAllUsers().asList(String.class);
 
         Assertions.assertTrue(users.size() >= 3);
-    }
-
-    private FullUser getRandomFullUser() {
-        int randomNumber = Math.abs(random.nextInt());
-        return FullUser.builder()
-                .login("threadQA" + randomNumber)
-                .pass("asd11")
-                .build();
-    }
-
-    private FullUser getAdminUser() {
-        return FullUser.builder()
-                .login("admin")
-                .pass("admin")
-                .build();
     }
 }
