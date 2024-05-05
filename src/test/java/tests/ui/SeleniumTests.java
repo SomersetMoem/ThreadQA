@@ -1,23 +1,38 @@
 package tests.ui;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SeleniumTests {
     private WebDriver webDriver;
+    private String downloadFolder = System.getProperty("user.dir") + File.separator +
+            "build" + File.separator + "downloadFiles";
 
+    @BeforeAll
+    public static void downloadDriver() {
+        WebDriverManager.chromedriver().setup();
+    }
     @BeforeEach
     public void setup() {
-        webDriver = new ChromeDriver();
+        ChromeOptions chromeOptions = new ChromeOptions();
+
+        Map<String, String> prefs = new HashMap<>();
+        prefs.put("download.default_directory", downloadFolder);
+        chromeOptions.setExperimentalOption("prefs", prefs);
+        webDriver = new ChromeDriver(chromeOptions);
         webDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(20));
         webDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
         webDriver.manage().window().setSize(new Dimension(1920, 1080));
@@ -98,6 +113,22 @@ public class SeleniumTests {
 
     @Test
     public void testDownload() {
+        webDriver.get("http://85.192.34.140:8081/");
+        WebElement elementCard = webDriver.findElement(By.xpath("//div[@class='card-body']//h5[text()='Elements']"));
+        elementCard.click();
 
+        WebElement elementUploadAndDownload = webDriver.findElement(By.xpath("//span[text()='Upload and Download']"));
+        elementUploadAndDownload.click();
+
+        WebElement downloadBtn = webDriver.findElement(By.id("downloadButton"));
+        downloadBtn.click();
+
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(30));
+        wait.until(x -> Paths.get(downloadFolder, "sticker.png").toFile().exists());
+
+        File file = new File("build/downloadFiles/sticker.png");
+
+        Assertions.assertTrue(file.length() != 0);
+        Assertions.assertNotNull(file);
     }
 }
