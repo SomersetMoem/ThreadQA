@@ -1,0 +1,36 @@
+package tests.ui;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import java.time.Duration;
+
+public class HardElementsTest {
+    private WebDriver webDriver;
+
+    @BeforeEach
+    public void setup() {
+        webDriver = new ChromeDriver();
+        webDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(20));
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+        webDriver.manage().window().setSize(new Dimension(1920, 1080));
+    }
+
+    @AfterEach
+    public void close() {
+        webDriver.close();
+    }
+
+    @Test
+    public void authTest() {
+        webDriver.get("https://admin:admin@the-internet.herokuapp.com/basic_auth");
+        String h3 = webDriver.findElement(By.xpath("//h3")).getText();
+        Assertions.assertEquals("Basic Auth", h3);
+    }
+}
