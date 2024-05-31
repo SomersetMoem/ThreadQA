@@ -4,14 +4,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Action;
+import org.openqa.selenium.interactions.Actions;
 
 import java.time.Duration;
+import java.util.List;
 
 public class HardElementsTest {
     private WebDriver webDriver;
@@ -69,7 +67,41 @@ public class HardElementsTest {
         WebElement elementTextBox = webDriver.findElement(By.xpath("//span[text()='Slider']"));
         elementTextBox.click();
 
-        WebElement slider = webDriver.findElement(By.cssSelector("[type='range']"));
-        Action action = new
+        WebElement slider = webDriver.findElement(By.xpath("//input[@type='range']"));
+        //1 Вариант перемещения слайдера
+        Actions actions = new Actions(webDriver);
+        actions.dragAndDropBy(slider, 10, 0).build().perform();
+
+        //2 Вариант перемещения слайдера
+        int expectedValue = 85;
+        int currentValue = Integer.parseInt(slider.getAttribute("value"));
+        int valueToMove = expectedValue - currentValue;
+        for (int i = 0; i < valueToMove; i++) {
+            slider.sendKeys(Keys.ARROW_RIGHT);
+        }
+
+        WebElement sliderValue = webDriver.findElement(By.id("sliderValue"));
+        int sliderValueInteger = Integer.parseInt(sliderValue.getAttribute("value"));
+        Assertions.assertEquals(expectedValue, sliderValueInteger);
+    }
+
+    @Test
+    public void hover() {
+        webDriver.get("http://85.192.34.140:8081/");
+        WebElement elementCard = webDriver.findElement(By.xpath("//div[@class='card-body']//h5[text()='Widgets']"));
+        elementCard.click();
+
+        WebElement elementTextBox = webDriver.findElement(By.xpath("//span[text()='Menu']"));
+        elementTextBox.click();
+
+        WebElement menuItemMiddle = webDriver.findElement(By.xpath("//a[text()='Main Item 2']"));
+        Actions actions = new Actions(webDriver);
+        actions.moveToElement(menuItemMiddle).build().perform();
+
+        WebElement subList = webDriver.findElement(By.xpath("//a[text()='SUB SUB LIST »']"));
+        actions.moveToElement(subList).build().perform();
+
+        List<WebElement> lastElements = webDriver.findElements(By.xpath("//a[contains(text(), 'Sub Sub Item')]"));
+        Assertions.assertEquals(2, lastElements.size());
     }
 }
