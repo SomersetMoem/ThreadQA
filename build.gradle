@@ -31,6 +31,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation 'org.seleniumhq.selenium:selenium-java:4.19.1'
     testImplementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
+    testImplementation 'com.codeborne:selenide:7.0.4'
 }
 
 tasks.register("testNGRun", Test.class) {
