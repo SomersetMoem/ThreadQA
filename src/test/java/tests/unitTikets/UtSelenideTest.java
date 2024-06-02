@@ -1,23 +1,26 @@
 package tests.unitTikets;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static com.codeborne.selenide.Selenide.$x;
+import tests.unitTikets.utPage.UtMainSelenidePage;
 
 public class UtSelenideTest {
-    @BeforeEach
-    public void initSettings() {
-    }
 
     @Test
     public void firstSelenideTest() {
+        int expectedDayTo = 3;
+        int expectedDayBack = 5;
         Selenide.open("https://uniticket.ru/");
-        SelenideElement header = $x("//h1");
-        header.should(Condition.text("Поиск дешевых авиабилетов"));
+
+        UtMainSelenidePage mainPage = new UtMainSelenidePage();
+        mainPage.setCityFrom("Казань")
+                .setCityTo("Дубай")
+                .setDayTo(expectedDayTo)
+                .setDayBack(expectedDayBack)
+                .search()
+                .waitForPage()
+                .waitForTitleDisappear()
+                .assertAllDaysToShouldHaveDay(expectedDayTo)
+                .assertAllDaysBackShouldHaveDay(expectedDayTo);
     }
 }
