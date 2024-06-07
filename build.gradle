@@ -33,6 +33,7 @@ dependencies {
     testImplementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
     testImplementation 'com.codeborne:selenide:7.0.4'
     testImplementation 'com.codeborne:pdf-test:1.8.1'
+    testImplementation 'ru.yandex.qatools.ashot:ashot:1.5.4'
 }
 
 tasks.register("testNGRun", Test.class) {
